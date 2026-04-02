@@ -85,6 +85,15 @@ describe('Task API - Full Coverage', () => {
         expect(res.body).toEqual([]);
     });
 
+    // invalid input types
+    test('POST /tasks - title is not string', async () => {
+        const res = await request(app)
+            .post('/tasks')
+            .send({ title: 123 });
+
+        expect(res.statusCode).toBe(400);
+    });
+
     // Complete task (PATCH, not PUT)
     test('PATCH /tasks/:id/complete', async () => {
         // create task first
@@ -174,6 +183,18 @@ describe('Task API - Full Coverage', () => {
         expect(res.body.length).toBe(2);
     });
 
+    test('GET /tasks with negative page and limit should normalize values', async () => {
+        for (let i = 0; i < 5; i++) {
+            await request(app).post('/tasks').send({ title: `Task ${i}` });
+        }
+
+        const res = await request(app).get('/tasks?page=-2&limit=-5');
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.length).toBe(1); // normalized to limit=1
+    });
+
+
     // overdue
     test('GET /tasks/stats - overdue count', async () => {
         await request(app).post('/tasks').send({
@@ -215,5 +236,11 @@ describe('Task API - Full Coverage', () => {
         expect(res.body.title).toBe('Updated title');
     });
 
+    // unknown route
+    test('GET /unknown - should return 404', async () => {
+        const res = await request(app).get('/unknown-route');
 
+        expect(res.statusCode).toBe(404);
+        expect(res.body).toHaveProperty('error');
+    });
 });
