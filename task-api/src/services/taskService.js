@@ -41,7 +41,7 @@ const getStats = () => {
   return { ...counts, overdue };
 };
 
-const create = ({ title, description = '', status = 'todo', priority = 'medium', dueDate = null }) => {
+const create = ({ title, description = '', status = 'todo', priority = 'medium', dueDate = null, assignee}) => {
   const task = {
     id: uuidv4(),
     title,
@@ -49,6 +49,7 @@ const create = ({ title, description = '', status = 'todo', priority = 'medium',
     status,
     priority,
     dueDate,
+    assignee,
     completedAt: null,
     createdAt: new Date().toISOString(),
   };
@@ -65,7 +66,7 @@ const update = (id, fields) => {
   // above line update sensitive info also like _id which must not be updated by anyone
 
   // below code only allows [allowedFields] to modfiy:
-  const allowedFields = ['title', 'description', 'status', 'priority', 'dueDate'];
+  const allowedFields = ['title', 'description', 'status', 'priority', 'dueDate', 'assignee'];
 
   const filteredFields = {};
   for (let key of allowedFields) {
@@ -85,6 +86,21 @@ const remove = (id) => {
 
   tasks.splice(index, 1);
   return true;
+};
+
+const assignTask = (id, assignee) => {
+  const task = findById(id);
+  if (!task) return null;
+
+  const updated = {
+    ...task,
+    assignee
+  };
+
+  const index = tasks.findIndex((t) => t.id === id);
+  tasks[index] = updated;
+
+  return updated;
 };
 
 const completeTask = (id) => {
@@ -118,6 +134,7 @@ module.exports = {
   create,
   update,
   remove,
+  assignTask,
   completeTask,
   _reset,
 };
