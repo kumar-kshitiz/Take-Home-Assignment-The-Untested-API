@@ -243,4 +243,33 @@ describe('Task API - Full Coverage', () => {
         expect(res.statusCode).toBe(404);
         expect(res.body).toHaveProperty('error');
     });
+
+    test('PATCH /tasks/:id/assign - success', async () => {
+        const createRes = await request(app)
+            .post('/tasks')
+            .send({ title: 'Task' });
+
+        const res = await request(app)
+            .patch(`/tasks/${createRes.body.id}/assign`)
+            .send({ assignee: 'Shubham' });
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.assignee).toBe('Shubham');
+    });
+
+    test('PATCH /tasks/:id/assign - invalid body', async () => {
+        const res = await request(app)
+            .patch('/tasks/123/assign')
+            .send({});
+
+        expect(res.statusCode).toBe(400);
+    });
+
+    test('PATCH /tasks/:id/assign - task not found', async () => {
+        const res = await request(app)
+            .patch('/tasks/550e8400-e29b-41d4-a716-446655440000/assign')
+            .send({ assignee: 'User' });
+
+        expect(res.statusCode).toBe(404);
+    });
 });

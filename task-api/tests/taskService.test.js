@@ -235,4 +235,22 @@ describe('Task Service Unit Tests', () => {
 
     });
 
+    describe('assignTask()', () => {
+
+        test('should assign a task', () => {
+            const task = taskService.create({ title: 'Test' });
+
+            const updated = taskService.assignTask(task.id, 'Shubham');
+
+            expect(updated.assignee).toBe('Shubham');
+        });
+
+        test('should return null if task not found', () => {
+            const result = taskService.assignTask('invalid-id', 'User');
+
+            expect(result).toBeNull();
+        });
+
+    });
+
 });
